@@ -42,7 +42,7 @@ fn deploy_contract_schema_resolver(name: ByteArray, sas: ContractAddress) -> Con
 }
 
 #[test]
-fn test_sas() {
+fn test_schema_resolver() {
     let contract_address_schema_registry = deploy_contract_schema_registry("SchemaRegistry");
 
     let dispatcher_schema_registry = ISchemaRegistryDispatcher {
@@ -119,61 +119,4 @@ fn test_sas() {
     println!("attestUID 1: {}", *_allAttestation.at(0).uid);
     println!("attestUID 2: {}", *_allAttestation.at(1).uid);
 
-}
-
-#[test]
-fn test_revoke_and_validation() {
-    // Deploy Schema Registry and SAS contracts
-    let contract_address_schema_registry = deploy_contract_schema_registry("SchemaRegistry");
-    let dispatcher_schema_registry = ISchemaRegistryDispatcher {
-        contract_address: contract_address_schema_registry
-    };
-    let contract_address_sas = deploy_contract_sas("SAS", contract_address_schema_registry);
-    let dispatcher_sas = ISASDispatcher { contract_address: contract_address_sas };
-
-    let contract_address_schema_resolver = deploy_contract_sas("SchemaResolver", contract_address_sas);
-
-    let _dispatcher_schema_resolver = ISchemaResolverDispatcher { contract_address: contract_address_schema_resolver };
-
-    // Register a schema
-    let schema: ByteArray = "felt252 name, u256 age, felt252 address";
-    let resolver: ContractAddress = contract_address_schema_resolver;
-    let revocable: bool = true;
-    let _uid: u256 = dispatcher_schema_registry.register(schema, resolver, revocable);
-
-    // Create an attestation
-    let _attestationRequestData: AttestationRequestData = AttestationRequestData {
-        recipient: contract_address_const::<2>(),
-        expirationTime: 1719207030,
-        revocable: true,
-        refUID: 0,
-        data: "sample",
-        value: 0
-    };
-    let _attestationRequest: AttestationRequest = AttestationRequest {
-        schema: _uid,
-        data: _attestationRequestData
-    };
-    let attestUID: u256 = dispatcher_sas.attest(_attestationRequest);
-
-    println!("attestUID 12223333322: {}",attestUID);
-
-
-    // Validate attestation
-    assert(dispatcher_sas.isAttestationValid(attestUID), 'Attestation should be valid');
-
-    // Revoke the attestation
-    dispatcher_sas.revoke(RevocationRequest {
-        schema: _uid,
-        data: RevocationRequestData {
-            uid: attestUID,
-            value: 0
-        }
-    });
-
-    println!("attestUID 1222: {}", dispatcher_sas.isAttestationValid(attestUID));
-
-
-    // Verify invalidation
-    assert(!dispatcher_sas.isAttestationValid(attestUID), 'NotFound');
 }

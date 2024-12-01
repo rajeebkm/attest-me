@@ -1,7 +1,7 @@
 use starknet::{ContractAddress, contract_address_const, get_caller_address, get_block_timestamp};
 use core::keccak::keccak_u256s_be_inputs;
 use alexandria_storage::{List, ListTrait};
-use attestme::resolver::{ ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait } ;
+use attestme::resolvers::schema_resolver::{ ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait } ;
 use attestme::schema_registry::{ISchemaRegistryDispatcher, ISchemaRegistryDispatcherTrait, SchemaRecord};
 use attestme::{
     helpers::common::{
@@ -619,16 +619,16 @@ mod SAS {
 
                 if (isRevocation) {
                     // send value
-                    // let isRevoke: bool = ISchemaResolverDispatcher { contract_address: resolver}.revoke(attestation);
-                    let isRevoke: bool = true;
+                    let isRevoke: bool = ISchemaResolverDispatcher { contract_address: resolver}.revoke(attestation);
+                    // let isRevoke: bool = true;
                     
                     if (isRevoke == false) {
                         panic_with_felt252(InvalidRevocation);
                     }
                 } else {
                     // send value
-                    // let isAttest: bool = ISchemaResolverDispatcher { contract_address: resolver}.attest(attestation);
-                    let isAttest: bool = true;
+                    let isAttest: bool = ISchemaResolverDispatcher { contract_address: resolver}.attest(attestation);
+                    // let isAttest: bool = true;
                     if (isAttest == false) {
                         panic_with_felt252(InvalidAttestation);
                     }
