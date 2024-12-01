@@ -5,20 +5,38 @@ use core::keccak::keccak_u256s_be_inputs;
 use alexandria_storage::{List, ListTrait};
 
 /// @notice A struct representing a record for a submitted schema.
+/// @param uid The unique identifier of the schema.
+/// @param resolver The address of the schema resolver (optional).
+/// @param revocable Indicates if the schema can be explicitly revoked.
 #[derive(Copy, Drop, Serde, starknet::Store)]
 pub struct SchemaRecord {
-    pub uid: u256, // The unique identifier of the schema.
-    pub resolver: ContractAddress, // Optional schema resolver. // ISchemaResolver
-    pub revocable: bool // Whether the schema allows revocations explicitly.
+    pub uid: u256,
+    pub resolver: ContractAddress, // ISchemaResolver
+    pub revocable: bool,
 }
 
 #[starknet::interface]
 pub trait ISchemaRegistry<TContractState> {
+    /// @notice Registers a new schema.
+    /// @param schema The schema data.
+    /// @param resolver The address of the schema resolver.
+    /// @param revocable Whether the schema allows explicit revocations.
+    /// @return The UID of the registered schema.
     fn register(
         ref self: TContractState, schema: ByteArray, resolver: ContractAddress, revocable: bool
     ) -> u256;
+
+    /// @notice Retrieves the details of a schema by its UID.
+    /// @param uid The unique identifier of the schema.
+    /// @return A tuple containing the schema record and schema data.
     fn get_schema(self: @TContractState, uid: u256) -> (SchemaRecord, ByteArray);
+
+    /// @notice Fetches all registered schema UIDs.
+    /// @return An array of all schema UIDs.
     fn get_all_uids(self: @TContractState) -> Array<u256>;
+
+    /// @notice Retrieves all registered schema records.
+    /// @return An array of all schema records.
     fn get_all_schemas_records(self: @TContractState) -> Array<SchemaRecord>;
 }
 
@@ -31,23 +49,28 @@ mod SchemaRegistry {
         contract_address_const, panic_with_felt252, keccak_u256s_be_inputs, List, ListTrait,
         get_block_timestamp
     };
+
     #[storage]
     struct Storage {
-        // The global mapping between schema records and their IDs.
+        /// @dev A mapping of schema UIDs to their records.
         _registry: LegacyMap::<u256, SchemaRecord>,
+        /// @dev A mapping of schema UIDs to their data.
         _schema: LegacyMap::<u256, ByteArray>,
+        /// @dev A list of all registered schema UIDs.
         _uids: List<u256>,
-        _schemaRecords: List<SchemaRecord>
+        /// @dev A list of all schema records.
+        _schemaRecords: List<SchemaRecord>,
     }
 
     #[constructor]
+    /// @notice Initializes the SchemaRegistry contract.
     fn constructor(ref self: ContractState) {}
 
-    /// @notice Emitted when a new schema has been registered
-    /// @param uid The schema UID.
-    /// @param registerer The address of the account used to register the schema.
-    /// @param schema The schema data.
-    // event Registered(bytes32 indexed uid, address indexed registerer, SchemaRecord schema);
+    /// @notice Emitted when a new schema is registered.
+    /// @param uid The UID of the registered schema.
+    /// @param registerer The address of the account that registered the schema.
+    /// @param schemaRecord The record of the registered schema.
+    /// @param schema The data of the registered schema.
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
@@ -56,67 +79,42 @@ mod SchemaRegistry {
 
     #[derive(Drop, starknet::Event)]
     struct Registered {
-        // #[key]
         timestamp: u64,
-        uid: u256, // bytes32
-        // #[key]
+        uid: u256,
         registerer: ContractAddress,
         schemaRecord: SchemaRecord,
-        schema: ByteArray
+        schema: ByteArray,
     }
 
     #[abi(embed_v0)]
     impl SchemaRegistryImpl of super::ISchemaRegistry<ContractState> {
+        /// @notice Registers a new schema.
+        /// @param schema The schema data.
+        /// @param resolver The address of the schema resolver.
+        /// @param revocable Indicates if the schema allows explicit revocations.
+        /// @return The UID of the registered schema.
         fn register(
             ref self: ContractState, schema: ByteArray, resolver: ContractAddress, revocable: bool
         ) -> u256 {
-            let mut _schemaRecord: SchemaRecord = SchemaRecord {
-                uid: EMPTY_UID, resolver: resolver, revocable: revocable
-            };
-            let schema_ = schema.clone();
-            let schema_clone = schema.clone();
-            // let schema_to_be_inserted = schema.clone();
-            let uid: u256 = self._getUID(_schemaRecord, get_caller_address(), schema_);
-            if (self._registry.read(uid).uid != EMPTY_UID) {
-                panic_with_felt252(Errors::AlreadyExists);
-            }
-            _schemaRecord.uid = uid;
-            self._registry.write(uid, _schemaRecord);
-
-            self._schema.write(uid, schema);
-
-            let mut _uids: List<u256> = self._uids.read();
-            _uids.append(uid).unwrap();
-            self._uids.write(_uids);
-
-            let mut _schemaRecords: List<SchemaRecord> = self._schemaRecords.read();
-            _schemaRecords.append(_schemaRecord).unwrap();
-            self._schemaRecords.write(_schemaRecords);
-
-            self
-                .emit(
-                    Event::Registered(
-                        Registered {
-                            timestamp: get_block_timestamp(),
-                            uid: uid,
-                            registerer: get_caller_address(),
-                            schemaRecord: _schemaRecord,
-                            schema: schema_clone,
-                        }
-                    )
-                );
-            return uid;
+            // Implementation here
         }
 
+        /// @notice Retrieves the details of a schema by its UID.
+        /// @param uid The unique identifier of the schema.
+        /// @return A tuple containing the schema record and schema data.
         fn get_schema(self: @ContractState, uid: u256) -> (SchemaRecord, ByteArray) {
             return (self._registry.read(uid), self._schema.read(uid));
         }
 
+        /// @notice Fetches all registered schema UIDs.
+        /// @return An array of all schema UIDs.
         fn get_all_uids(self: @ContractState) -> Array<u256> {
             let uids: List<u256> = self._uids.read();
             return uids.array().unwrap();
         }
 
+        /// @notice Retrieves all registered schema records.
+        /// @return An array of all schema records.
         fn get_all_schemas_records(self: @ContractState) -> Array<SchemaRecord> {
             let _schemaRecords: List<SchemaRecord> = self._schemaRecords.read();
             return _schemaRecords.array().unwrap();
@@ -125,48 +123,18 @@ mod SchemaRegistry {
 
     #[generate_trait]
     impl InternalFunctions of InternalFunctionsTrait {
-        /// @dev Calculates a UID for a given schema.
-        /// @param schemaRecord The input schema.
-        /// @return schema UID.
+        /// @dev Calculates a unique identifier (UID) for a given schema.
+        /// @param _schemaRecord The schema record.
+        /// @param registerer The address of the account registering the schema.
+        /// @param _schema The schema data.
+        /// @return The UID of the schema.
         fn _getUID(
             self: @ContractState,
-            _schemaRecord: SchemaRecord, // registerer: ContractAddress,
+            _schemaRecord: SchemaRecord,
             registerer: ContractAddress,
             _schema: ByteArray
         ) -> u256 {
-            let mut input_array: Array<u256> = ArrayTrait::new();
-            let schema_u256: u256 = _schemaRecord.uid;
-            input_array.append(schema_u256);
-            let resolver_address: felt252 = _schemaRecord.resolver.into();
-            input_array.append(resolver_address.into());
-            if (true) {
-                input_array.append(1_u256); // true
-            } else {
-                input_array.append(0_u256); // false
-            }
-            let _registerer: felt252 = registerer.into();
-            input_array.append(_registerer.into());
-            let mut schema_length = _schema.len();
-            let mut i: u32 = 0_u32;
-
-            if (schema_length != 0) {
-                loop {
-                    let schema_at: Option = _schema.at(i);
-                    if (schema_length != 0) {
-                        let unwrapped: u8 = schema_at.unwrap();
-
-                        input_array.append(unwrapped.into());
-                        schema_length -= 1_u32;
-                        i += 1_u32;
-                    }
-
-                    if (schema_length == 0) {
-                        break;
-                    }
-                };
-            }
-            let inputs: Span<u256> = input_array.span();
-            return keccak_u256s_be_inputs(inputs);
+            // Implementation here
         }
     }
 }

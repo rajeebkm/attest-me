@@ -1,9 +1,14 @@
-// import { EIP1271Verifier } from "./eip1271/EIP1271Verifier.sol";
-
 use starknet::{ContractAddress, contract_address_const, get_caller_address, get_block_timestamp};
 use core::keccak::keccak_u256s_be_inputs;
 use alexandria_storage::{List, ListTrait};
 
+// @notice A struct representing ECDSA signature data.
+#[derive(Drop, Serde)]
+pub struct Signature {
+    pub r: u8, // The r component of the signature.
+    pub s: u256, // The s component of the signature.
+    pub v: u256 // The v component of the signature.
+}
 
 /// @notice A struct representing the full arguments of the attestation request.
 #[derive(Drop, Serde)]
@@ -20,7 +25,7 @@ pub struct AttestationsResult {
 }
 
 /// @notice A struct representing the arguments of the attestation request.
-#[derive(Drop, Serde)]
+#[derive( Drop, Serde)]
 pub struct AttestationRequestData {
     pub recipient: ContractAddress, // The recipient of the attestation.
     pub expirationTime: u64, // The time when the attestation expires (Unix timestamp).
@@ -59,6 +64,55 @@ pub struct RevocationRequest {
     data: RevocationRequestData // The arguments of the revocation request.
 }
 
+#[derive(Drop, Serde)]
+pub struct DelegatedAttestationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: AttestationRequestData, // The arguments of the attestation request.
+    signature: Signature, // The ECDSA signature of the attestation request.
+    attester: ContractAddress, // The attesting account.
+    deadline: u64 // The deadline of the signature request.
+}
+
+#[derive(Drop, Serde)]
+pub struct DelegatedRevocationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: RevocationRequestData, // The arguments of the revocation request.
+    signature: Signature, // The ECDSA signature of the revocation request.
+    revoker: ContractAddress, // The revoking account.
+    deadline: u64 // The deadline of the signature request.
+
+}
+
+#[derive(Drop, Serde)]
+pub struct MultiAttestationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: AttestationRequestData, // The arguments of the attestation request.
+}
+
+#[derive(Drop, Serde)]
+pub struct MultiDelegatedAttestationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: Array<DelegatedAttestationRequest>, // The arguments of the attestation request.
+    signatures : Array<Signature>, // The ECDSA signatures data.
+    attester: ContractAddress, // The attesting account.
+    deadline: u64 // The deadline of the signature request.
+}
+
+#[derive(Drop, Serde)]
+pub struct MultiDelegatedRevocationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: Array<RevocationRequestData>, // The arguments of the revocation request.
+    signatures : Array<Signature>, // The ECDSA signatures data.
+    revoker: ContractAddress, // The revoking account.
+    deadline: u64 // The deadline of the signature request.
+}
+
+#[derive(Drop, Serde)]
+pub struct MultiRevocationRequest {
+    schema: u256, // The unique identifier of the schema.
+    data: RevocationRequestData, // The arguments of the revocation request.
+}
+
 use attestme::schema_registry::{ISchemaRegistryDispatcher, SchemaRecord};
 use attestme::schema_registry::ISchemaRegistryDispatcherTrait;
 use attestme::{
@@ -81,6 +135,7 @@ pub trait ISAS<TContractState> {
     /// @notice Returns the address of the global schema registry.
     /// @return The address of the global schema registry.
     fn getSchemaRegistry(self: @TContractState) -> ContractAddress; // ISchemaRegistry
+
     /// @notice Attests to a specific schema.
     /// @param request The arguments of the attestation request.
     /// @return The UID of the new attestation.
@@ -89,23 +144,19 @@ pub trait ISAS<TContractState> {
     /// @notice Attests to a specific schema via the provided ECDSA signature.
     /// @param delegatedRequest The arguments of the delegated attestation request.
     /// @return The UID of the new attestation.
-    // fn attestByDelegation(
-    // ref self: TContractState, delegatedRequest: DelegatedAttestationRequest
-    // ) -> u128; // bytes32
+    // fn attestByDelegation(ref self: TContractState, delegatedRequest: DelegatedAttestationRequest) -> u256; // bytes32  // @TODO: Implement
+
     /// @notice Attests to multiple schemas.
     /// @param multiRequests The arguments of the multi attestation requests. The requests should be grouped by distinct
     ///     schema ids to benefit from the best batching optimization.
     /// @return The UIDs of the new attestations.
-    // fn multiAttest(
-    //     ref self: TContractState, multiRequests: Array<MultiAttestationRequest>
-    // ) -> Array<u128>;
+    fn multiAttest(ref self: TContractState, multiRequests: Array<MultiAttestationRequest>) -> Array<u256>; 
+
     /// @notice Attests to multiple schemas using via provided ECDSA signatures.
     /// @param multiDelegatedRequests The arguments of the delegated multi attestation requests. The requests should be
     ///     grouped by distinct schema ids to benefit from the best batching optimization.
     /// @return The UIDs of the new attestations.
-    // fn multiAttestByDelegation(
-    //     ref self: TContractState, multiDelegatedRequests: Array<MultiDelegatedAttestationRequest>
-    // ) -> Array<u128>; // bytes32[]
+    // fn multiAttestByDelegation(ref self: TContractState, multiDelegatedRequests: Array<MultiDelegatedAttestationRequest>) -> Array<u128>; // bytes32[]  // @TODO: Implement
 
     /// @notice Revokes an existing attestation to a specific schema.
     /// @param request The arguments of the revocation request.
@@ -113,20 +164,18 @@ pub trait ISAS<TContractState> {
 
     /// @notice Revokes an existing attestation to a specific schema via the provided ECDSA signature.
     /// @param delegatedRequest The arguments of the delegated revocation request.
-    // fn revokeByDelegation(ref self: TContractState, delegatedRequest: DelegatedRevocationRequest);
+    // fn revokeByDelegation(ref self: TContractState, delegatedRequest: DelegatedRevocationRequest); // @TODO: Implement
 
     /// @notice Revokes existing attestations to multiple schemas.
     /// @param multiRequests The arguments of the multi revocation requests. The requests should be grouped by distinct
     ///     schema ids to benefit from the best batching optimization.
 
-    // fn multiRevoke(ref self: TContractState, multiRequests: Array<MultiRevocationRequest>);
+    fn multiRevoke(ref self: TContractState, multiRequests: Array<MultiRevocationRequest>); // @TODO: Implement
 
     /// @notice Revokes existing attestations to multiple schemas via provided ECDSA signatures.
     /// @param multiDelegatedRequests The arguments of the delegated multi revocation attestation requests. The requests
     ///     should be grouped by distinct schema ids to benefit from the best batching optimization.
-    // fn multiRevokeByDelegation(
-    //     ref self: TContractState, multiDelegatedRequests: Array<MultiDelegatedRevocationRequest>
-    // );
+    // fn multiRevokeByDelegation(ref self: TContractState, multiDelegatedRequests: Array<MultiDelegatedRevocationRequest>); // @TODO: Implement
 
     /// @notice Timestamps the specified bytes32 data.
     /// @param data The data to timestamp. // bytes32
@@ -141,12 +190,12 @@ pub trait ISAS<TContractState> {
     // /// @notice Revokes the specified bytes32 data.
     // /// @param data The data to timestamp.
     // /// @return The timestamp the data was revoked with.
-    // fn revokeOffchain(ref self: TContractState, data: felt252) -> u64;
+    fn revokeOffchain(ref self: TContractState, data: u256) -> u64; 
 
     // /// @notice Revokes the specified multiple bytes32 data.
     // /// @param data The data to timestamp.
     // /// @return The timestamp the data was revoked with.
-    // fn multiRevokeOffchain(ref self: TContractState, data: Array<felt252>) -> u64;
+    fn multiRevokeOffchain(ref self: TContractState, data: Array<u256>) -> u64; 
 
     /// @notice Returns an existing attestation by UID.
     /// @param uid The UID of the attestation to retrieve.
@@ -185,7 +234,7 @@ mod SAS {
     use core::array::ArrayTrait;
     use super::{
         ContractAddress, contract_address_const, SchemaRecord, Attestation, AttestationRequest,
-        AttestationRequestData, InvalidRegistry, InvalidSchema, get_caller_address,
+        AttestationRequestData, MultiAttestationRequest,MultiRevocationRequest, InvalidRegistry, InvalidSchema, get_caller_address,
         ISchemaRegistryDispatcher, InvalidExpirationTime, Irrevocable,
         ISchemaRegistryDispatcherTrait, EMPTY_UID, NO_EXPIRATION_TIME, get_block_timestamp,
         keccak_u256s_be_inputs, NotFound, AttestationsResult, NotPayable, InsufficientValue,
@@ -203,9 +252,9 @@ mod SAS {
         _timestamps: LegacyMap::<
             u256, u64
         >, // The global mapping between data and their timestamps.
-        // _revocationsOffchain: LegacyMap::<
-        //     (ContractAddress, u256), u64
-        // >, // The global mapping between data and their revocation timestamps.
+        _revocationsOffchain: LegacyMap::<
+            ContractAddress, (u256, u64)
+        >, // The global mapping between data and their revocation timestamps.
         _noOfAttestation: LegacyMap::<u256, u256>,
         _all_attestation_uids: List<u256>
     }
@@ -227,7 +276,7 @@ mod SAS {
         Attested: Attested,
         Revoked: Revoked,
         Timestamped: Timestamped,
-        // RevokedOffchain: RevokedOffchain
+        RevokedOffchain: RevokedOffchain
     }
 
     /// @notice Emitted when an attestation has been made.
@@ -278,15 +327,15 @@ mod SAS {
     /// @param revoker The address of the revoker.
     /// @param data The data.
     /// @param timestamp The timestamp.
-    // #[derive(Drop, starknet::Event)]
-    // struct RevokedOffchain {
-    //     // #[key]
-    //     revoker: ContractAddress, // bytes32
-    //     // #[key]
-    //     timestamp: u64,
-    //     data: u256,
-    // // #[key]
-    // }
+    #[derive(Drop, starknet::Event)]
+    struct RevokedOffchain {
+        // #[key]
+        revoker: ContractAddress, // bytes32
+        // #[key]
+        timestamp: u64,
+        data: u256,
+    // #[key]
+    }
 
     #[abi(embed_v0)]
     impl SASImpl of super::ISAS<ContractState> {
@@ -312,19 +361,10 @@ mod SAS {
         /// @return The UID of the new attestation.
         // fn attestByDelegation(
         //     ref self: ContractState, delegatedRequest: DelegatedAttestationRequest
-        // ) -> u128 {
-        //     return 0_u128;
+        // ) -> u256 {
+        //     self._verifyAttest(delegatedRequest);
         // }
-        /// @notice Attests to multiple schemas.
-        /// @param multiRequests The arguments of the multi attestation requests. The requests should be grouped by distinct
-        ///     schema ids to benefit from the best batching optimization.
-        /// @return The UIDs of the new attestations.
-        // fn multiAttest(
-        //     ref self: ContractState, multiRequests: Array<MultiAttestationRequest>
-        // ) -> Array<u128> {
-        //     let array: Array<u128> = ArrayTrait::new();
-        //     return array;
-        // }
+  
         /// @notice Attests to multiple schemas using via provided ECDSA signatures.
         /// @param multiDelegatedRequests The arguments of the delegated multi attestation requests. The requests should be
         ///     grouped by distinct schema ids to benefit from the best batching optimization.
@@ -388,9 +428,7 @@ mod SAS {
         /// @notice Revokes the specified multiple bytes32 data.
         /// @param data The data to timestamp.
         /// @return The timestamp the data was revoked with.
-        // fn multiRevokeOffchain(ref self: ContractState, data: Array<felt252>) -> u64 {
-        //     0_u64
-        // }
+     
 
         /// @notice Returns an existing attestation by UID.
         /// @param uid The UID of the attestation to retrieve.
@@ -453,6 +491,90 @@ mod SAS {
 
         fn getNoOfAttestation(self: @ContractState, schemaUID: u256) -> u256 {
             return self._noOfAttestation.read(schemaUID);
+        }
+
+
+        /////// Updating the pending functions that need to be implemented //////////
+
+        fn multiAttest(ref self: ContractState, mut multiRequests: Array<MultiAttestationRequest>) -> Array<u256> {
+            // let mut i: u32 = 0;
+            // let mut length = multiRequests.len();
+            let mut _uids: Array<u256> = ArrayTrait::new();
+            loop {
+                // if (i == length) {
+                //     break;
+                // }
+                
+                // let mut multiRequest : MultiAttestationRequest = multiRequests[i];
+
+                match multiRequests.pop_front() {
+                    Option::Some(multiRequests) => {
+                        let _attestationsResult: AttestationsResult = self
+                            ._attest( multiRequests.schema,  multiRequests.data, get_caller_address(), 0, true);
+                        _uids.append(_attestationsResult.uids);
+                    },
+                    Option::None => {
+                        break;
+                    }
+                }
+
+                // let mut _attestationsResult: AttestationsResult = self
+                //     ._attest( *multiRequests.at(i).schema,  *multiRequests.at(i).data, get_caller_address(), 0, true);
+                // _uids.append(_attestationsResult.uids);
+                // i += 1;
+            };
+
+            return _uids;
+        }
+
+        fn multiRevoke(ref self: ContractState, mut multiRequests: Array<MultiRevocationRequest>) {
+            // let mut i: u32 = 0;
+            // let mut length = multiRequests.len();
+            loop {
+                // if (i == length) {
+                //     break;
+                // }
+                
+                // let mut multiRequest : MultiRevocationRequest = multiRequests[i];
+
+                match multiRequests.pop_front() {
+                    Option::Some(multiRequests) => {
+                        let _revocationRequestData: RevocationRequestData = multiRequests.data;
+                        self._revoke(multiRequests.schema, _revocationRequestData, get_caller_address(), 0, true);
+                    },
+                    Option::None => {
+                        break;
+                    }
+                }
+
+                // let mut _revocationRequestData: RevocationRequestData = multiRequests[i].data;
+                // self._revoke(multiRequests[i].schema, _revocationRequestData, get_caller_address(), 0, true);
+                // i += 1;
+            };
+        }
+        
+        fn revokeOffchain(ref self: ContractState, data: u256) -> u64 {
+            let time: u64 = get_block_timestamp();
+            self._revokeOffchain(get_caller_address(), data, time);
+            return time;
+        }
+
+        fn multiRevokeOffchain(ref self: ContractState, data: Array<u256> ) -> u64 {
+            let time:u64 = get_block_timestamp();
+            let length = data.len();
+            let mut i = 0;
+            loop {
+                if ( i == length ) {
+                    break;
+                }
+
+                self._revokeOffchain(get_caller_address(), *data.at(i), time);
+                if (i==length) {
+                    break;
+                }
+            };
+            
+            return time;
         }
     }
 
@@ -599,6 +721,8 @@ mod SAS {
             let inputs: Span<u256> = input_array.span();
             return keccak_u256s_be_inputs(inputs);
         }
+
+        
 
         fn _isAttestationValid(self: @ContractState, uid: u256) -> bool {
             let uid: u256 = self._db.read(uid).uid;
@@ -775,5 +899,19 @@ mod SAS {
 
             self.emit(Event::Timestamped(Timestamped { data: _data, timestamp: _time }));
         }
+
+
+        fn _revokeOffchain(ref self : ContractState, revoker: ContractAddress, data: u256, time: u64) {
+            let (mut getData,mut timestamp) = self._revocationsOffchain.read(revoker);
+
+            if (data == getData && timestamp != 0) {
+                panic_with_felt252(AlreadyRevoked);
+            }
+
+            timestamp = time;
+            self.emit(Event::RevokedOffchain(RevokedOffchain { revoker: revoker, timestamp: time, data: data }));
+        }
     }
+
+    
 }
