@@ -14,7 +14,7 @@
 // //     revocable: bool, // Whether the attestation is revocable.
 // //     refUID: u256, // The UID of the related attestation.
 // //     data: ByteArray, // Custom attestation data.
-// //     value: u256 // An explicit ETH amount to send to the resolver. This is important to prevent accidental user errors.
+// //     value: u256 // An explicit native token amount to send to the resolver. This is important to prevent accidental user errors.
 // // }
 
 // // /// @notice A struct representing the full arguments of the attestation request.
@@ -57,7 +57,7 @@
 // #[derive(Copy, Drop, Serde)]
 // pub struct RevocationRequestData {
 //     uid: u128, // The UID of the attestation to revoke.
-//     value: u256 // An explicit ETH amount to send to the resolver. This is important to prevent accidental user errors.
+//     value: u256 // An explicit native token amount to send to the resolver. This is important to prevent accidental user errors.
 // }
 
 // /// @notice A struct representing the full arguments of the revocation request.

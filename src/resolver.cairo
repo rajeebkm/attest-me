@@ -1,15 +1,18 @@
 use starknet::{ContractAddress, contract_address_const, get_caller_address,};
+use attestme::helpers::common::{Errors};
+use attestme::SAS::Attestation;
+use core::panic_with_felt252;
+
 
 #[starknet::interface]
 pub trait ISchemaResolver<TContractState> {
     fn isPayable(self: @TContractState) -> bool;
-// fn attest(ref self: TContractState, attestation: Attestation) -> bool;
-// fn multiAttest(ref self: TContractState, attestations: Array<Attestation>, values: Array<u256>) -> bool;
-// fn revoke(ref self: TContractState, attestation: Attestation) -> bool;
-// fn multiRevoke(ref self: TContractState, attestations: Array<Attestation>, values: Array<u256>) -> bool;
-// fn onAttest(ref self: TContractState, attestation: Attestation, values: u256) -> bool;
-// fn onRevoke(ref self: TContractState, attestation: Attestation, values: u256) -> bool;
-// fn _onlyEAS(self: @TContractState);
+    // fn attest(ref self: TContractState, attestation: Attestation) -> bool;
+    // fn multiAttest(ref self: TContractState, attestations: Array<Attestation>, values: Array<u256>) -> bool;
+    // fn revoke(ref self: TContractState, attestation: Attestation) -> bool;
+    // fn multiRevoke(ref self: TContractState, attestations: Array<Attestation>, values: Array<u256>) -> bool;
+    // fn onAttest(ref self: TContractState, attestation: Attestation, values: u256) -> bool;
+    // fn onRevoke(ref self: TContractState, attestation: Attestation, values: u256) -> bool;
 
 }
 
@@ -17,12 +20,23 @@ pub trait ISchemaResolver<TContractState> {
 mod SchemaResolver {
     use core::result::ResultTrait;
     use core::array::ArrayTrait;
-    use super::{ContractAddress};
+    use super::{ContractAddress, get_caller_address, contract_address_const, Errors, Attestation, panic_with_felt252};
     #[storage]
-    struct Storage {}
+    struct Storage {
+        sas: ContractAddress, // The SAS contract address
 
+    }
+   
+    /// @dev Creates a new Resolver instance.
+    /// @param registry The address global SAS contract.
     #[constructor]
-    fn constructor(ref self: ContractState) {}
+    fn constructor(ref self: ContractState, _sas: ContractAddress) {
+        if (_sas == contract_address_const::<0>()) {
+            panic_with_felt252(Errors::InvalidSAS);
+        }
+
+        self.sas.write(_sas);
+    }
 
     /// @notice Emitted when a new schema has been registered
     /// @param uid The schema UID.
@@ -38,55 +52,26 @@ mod SchemaResolver {
         fn isPayable(self: @ContractState) -> bool {
             return true;
         }
+        // fn attest(ref self: ContractState, _attestation: Attestation) -> bool {
+        //     assert(get_caller_address() == self.sas.read(), Errors::InvalidSAS);
+        //     // return self._onAttest(_attestation, 0);
+        //     return true;
+        // }
+
+        // fn revoke(ref self: ContractState, _attestations: Array<Attestation>, _values: Array<u256>) -> bool {
+        //     assert(get_caller_address() == self.sas.read(), Errors::InvalidSAS);
+        //     // return self._onARevoke(_attestation, 0);
+        //     return true;
+        // }
+
+        //  fn multiAttest(ref self: ContractState, _attestations: Array<Attestation>, _values: Array<u256>) -> bool {
+        //     assert(get_caller_address() == self.sas.read(), Errors::InvalidSAS);
+        //     // return self._onAttest(_attestation, 0);
+        //     return true;
+        // }
     }
 }
-// import { IEAS, Attestation } from "../IEAS.sol";
-// import { AccessDenied, InvalidEAS, InvalidLength, uncheckedInc } from "../Common.sol";
 
-// import { ISchemaResolver } from "./ISchemaResolver.sol";
-
-// /// @title SchemaResolver
-// /// @notice The base schema resolver contract.
-// abstract contract SchemaResolver is ISchemaResolver {
-//     error InsufficientValue();
-//     error NotPayable();
-
-//     // The global EAS contract.
-//     IEAS internal immutable _eas;
-
-//     /// @dev Creates a new resolver.
-//     /// @param eas The address of the global EAS contract.
-//     constructor(IEAS eas) {
-//         if (address(eas) == address(0)) {
-//             revert InvalidEAS();
-//         }
-
-//         _eas = eas;
-//     }
-
-//     /// @dev Ensures that only the EAS contract can make this call.
-//     modifier onlyEAS() {
-//         _onlyEAS();
-
-//         _;
-//     }
-
-//     /// @inheritdoc ISchemaResolver
-//     function isPayable() public pure virtual returns (bool) {
-//         return false;
-//     }
-
-//     /// @dev ETH callback.
-//     receive() external payable virtual {
-//         if (!isPayable()) {
-//             revert NotPayable();
-//         }
-//     }
-
-//     /// @inheritdoc ISchemaResolver
-//     function attest(Attestation calldata attestation) external payable onlyEAS returns (bool) {
-//         return onAttest(attestation, msg.value);
-//     }
 
 //     /// @inheritdoc ISchemaResolver
 //     function multiAttest(
@@ -98,10 +83,10 @@ mod SchemaResolver {
 //             revert InvalidLength();
 //         }
 
-//         // We are keeping track of the remaining ETH amount that can be sent to resolvers and will keep deducting
-//         // from it to verify that there isn't any attempt to send too much ETH to resolvers. Please note that unless
-//         // some ETH was stuck in the contract by accident (which shouldn't happen in normal conditions), it won't be
-//         // possible to send too much ETH anyway.
+//         // We are keeping track of the remaining native token amount that can be sent to resolvers and will keep deducting
+//         // from it to verify that there isn't any attempt to send too much native token to resolvers. Please note that unless
+//         // some native token was stuck in the contract by accident (which shouldn't happen in normal conditions), it won't be
+//         // possible to send too much native token anyway.
 //         uint256 remainingValue = msg.value;
 
 //         for (uint256 i = 0; i < length; i = uncheckedInc(i)) {
@@ -117,7 +102,7 @@ mod SchemaResolver {
 //             }
 
 //             unchecked {
-//                 // Subtract the ETH amount, that was provided to this attestation, from the global remaining ETH amount.
+//                 // Subtract the native token amount, that was provided to this attestation, from the global remaining native token amount.
 //                 remainingValue -= value;
 //             }
 //         }
@@ -125,10 +110,7 @@ mod SchemaResolver {
 //         return true;
 //     }
 
-//     /// @inheritdoc ISchemaResolver
-//     function revoke(Attestation calldata attestation) external payable onlyEAS returns (bool) {
-//         return onRevoke(attestation, msg.value);
-//     }
+
 
 //     /// @inheritdoc ISchemaResolver
 //     function multiRevoke(
@@ -140,10 +122,10 @@ mod SchemaResolver {
 //             revert InvalidLength();
 //         }
 
-//         // We are keeping track of the remaining ETH amount that can be sent to resolvers and will keep deducting
-//         // from it to verify that there isn't any attempt to send too much ETH to resolvers. Please note that unless
-//         // some ETH was stuck in the contract by accident (which shouldn't happen in normal conditions), it won't be
-//         // possible to send too much ETH anyway.
+//         // We are keeping track of the remaining native token amount that can be sent to resolvers and will keep deducting
+//         // from it to verify that there isn't any attempt to send too much native token to resolvers. Please note that unless
+//         // some native token was stuck in the contract by accident (which shouldn't happen in normal conditions), it won't be
+//         // possible to send too much native token anyway.
 //         uint256 remainingValue = msg.value;
 
 //         for (uint256 i = 0; i < length; i = uncheckedInc(i)) {
@@ -159,7 +141,7 @@ mod SchemaResolver {
 //             }
 
 //             unchecked {
-//                 // Subtract the ETH amount, that was provided to this attestation, from the global remaining ETH amount.
+//                 // Subtract the native token amount, that was provided to this attestation, from the global remaining native token amount.
 //                 remainingValue -= value;
 //             }
 //         }
@@ -167,30 +149,7 @@ mod SchemaResolver {
 //         return true;
 //     }
 
-//     /// @notice A resolver callback that should be implemented by child contracts.
-//     /// @param attestation The new attestation.
-//     /// @param value An explicit ETH amount that was sent to the resolver. Please note that this value is verified in
-//     ///     both attest() and multiAttest() callbacks EAS-only callbacks and that in case of multi attestations, it'll
-//     ///     usually hold that msg.value != value, since msg.value aggregated the sent ETH amounts for all the
-//     ///     attestations in the batch.
-//     /// @return Whether the attestation is valid.
-//     function onAttest(Attestation calldata attestation, uint256 value) internal virtual returns (bool);
 
-//     /// @notice Processes an attestation revocation and verifies if it can be revoked.
-//     /// @param attestation The existing attestation to be revoked.
-//     /// @param value An explicit ETH amount that was sent to the resolver. Please note that this value is verified in
-//     ///     both revoke() and multiRevoke() callbacks EAS-only callbacks and that in case of multi attestations, it'll
-//     ///     usually hold that msg.value != value, since msg.value aggregated the sent ETH amounts for all the
-//     ///     attestations in the batch.
-//     /// @return Whether the attestation can be revoked.
-//     function onRevoke(Attestation calldata attestation, uint256 value) internal virtual returns (bool);
-
-//     /// @dev Ensures that only the EAS contract can make this call.
-//     function _onlyEAS() private view {
-//         if (msg.sender != address(_eas)) {
-//             revert AccessDenied();
-//         }
-//     }
 // }
 
 

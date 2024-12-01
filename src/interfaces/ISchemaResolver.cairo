@@ -3,8 +3,8 @@ use attestme::helpers::common;
 
 #[starknet::interface]
 trait ISchemaResolver<TContractState> {
-    /// @notice Checks if the resolver can be sent ETH.
-    /// @return Whether the resolver supports ETH transfers.
+    /// @notice Checks if the resolver can be sent native token.
+    /// @return Whether the resolver supports native token transfers.
     fn isPayable(self: @TContractState) -> bool;
 
     /// @notice Processes an attestation and verifies whether it's valid.
@@ -14,7 +14,7 @@ trait ISchemaResolver<TContractState> {
 
     /// @notice Processes multiple attestations and verifies whether they are valid.
     /// @param attestations The new attestations.
-    /// @param values Explicit ETH amounts which were sent with each attestation.
+    /// @param values Explicit native token amounts which were sent with each attestation.
     /// @return Whether all the attestations are valid.
     fn multiAttest(ref self: TContractState, attestations: Array<common::Attestation>, values: Array<felt252>) -> bool;
 
@@ -25,7 +25,7 @@ trait ISchemaResolver<TContractState> {
 
     /// @notice Processes revocation of multiple attestation and verifies they can be revoked.
     /// @param attestations The existing attestations to be revoked.
-    /// @param values Explicit ETH amounts which were sent with each revocation.
+    /// @param values Explicit native token amounts which were sent with each revocation.
     /// @return Whether the attestations can be revoked.
     fn multiRevoke(ref self: TContractState, attestations: Array<common::Attestation>, values: Array<felt252>) -> bool;
 

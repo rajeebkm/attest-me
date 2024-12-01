@@ -9,7 +9,7 @@ pub const NO_EXPIRATION_TIME: u64 = 0;
 pub mod Errors {
     pub const AccessDenied: felt252 = 'AccessDenied';
     pub const DeadlineExpired: felt252 = 'DeadlineExpired';
-    pub const InvalidEAS: felt252 = 'InvalidEAS';
+    pub const InvalidSAS: felt252 = 'InvalidSAS';
     pub const InvalidLength: felt252 = 'InvalidLength';
     pub const InvalidSignature: felt252 = 'InvalidSignature';
     pub const NotFound: felt252 = 'NotFound';
@@ -30,6 +30,7 @@ pub mod Errors {
     pub const Irrevocable: felt252 = 'Irrevocable';
     pub const NotPayable: felt252 = 'NotPayable';
     pub const WrongSchema: felt252 = 'WrongSchema';
+
 
 }
 
