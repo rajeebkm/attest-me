@@ -1,7 +1,8 @@
 use starknet::{ContractAddress, contract_address_const, get_caller_address, get_block_timestamp};
 use core::keccak::keccak_u256s_be_inputs;
 use alexandria_storage::{List, ListTrait};
-use attestme::resolvers::schema_resolver::{ ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait } ;
+use attestme::resolvers::schema_resolver::{ ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait };
+use attestme::resolvers::recipient_resolver::{ IRecipientResolverDispatcher, IRecipientResolverDispatcherTrait } ;
 use attestme::schema_registry::{ISchemaRegistryDispatcher, ISchemaRegistryDispatcherTrait, SchemaRecord};
 use attestme::{
     helpers::common::{
@@ -198,7 +199,7 @@ mod SAS {
         ISchemaRegistryDispatcherTrait, EMPTY_UID, NO_EXPIRATION_TIME, get_block_timestamp,
         keccak_u256s_be_inputs, NotFound, AttestationsResult, NotPayable, InsufficientValue,
         InvalidAttestation, InvalidRevocation, RevocationRequest, RevocationRequestData,
-        AccessDenied, AlreadyRevoked, AlreadyTimestamped, List, ListTrait, ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait
+        AccessDenied, AlreadyRevoked, AlreadyTimestamped, List, ListTrait, ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait, IRecipientResolverDispatcher, IRecipientResolverDispatcherTrait
     };
     #[storage]
     struct Storage {
@@ -598,7 +599,7 @@ mod SAS {
                     return 0;
                 }
 
-                let isResolverPayable: bool = ISchemaResolverDispatcher { contract_address: resolver}.isPayable();
+                let isResolverPayable: bool = IRecipientResolverDispatcher { contract_address: resolver}.isPayable();
 
                 // Ensure that we don't accept payments which can't be forwarded to the resolver.
                 if (value != 0) {
@@ -619,16 +620,14 @@ mod SAS {
 
                 if (isRevocation) {
                     // send value
-                    let isRevoke: bool = ISchemaResolverDispatcher { contract_address: resolver}.revoke(attestation);
-                    // let isRevoke: bool = true;
+                    let isRevoke: bool = IRecipientResolverDispatcher { contract_address: resolver}.revoke(attestation, 0);
                     
                     if (isRevoke == false) {
                         panic_with_felt252(InvalidRevocation);
                     }
                 } else {
                     // send value
-                    let isAttest: bool = ISchemaResolverDispatcher { contract_address: resolver}.attest(attestation);
-                    // let isAttest: bool = true;
+                    let isAttest: bool = IRecipientResolverDispatcher { contract_address: resolver}.attest(attestation, 0);
                     if (isAttest == false) {
                         panic_with_felt252(InvalidAttestation);
                     }

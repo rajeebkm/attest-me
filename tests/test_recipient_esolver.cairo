@@ -11,7 +11,10 @@ use attestme::schema_registry::ISchemaRegistrySafeDispatcher;
 use attestme::schema_registry::ISchemaRegistrySafeDispatcherTrait;
 use attestme::schema_registry::ISchemaRegistryDispatcher;
 use attestme::schema_registry::ISchemaRegistryDispatcherTrait;
-use attestme::resolvers::schema_resolver::{ ISchemaResolverDispatcher, ISchemaResolverDispatcherTrait } ;
+use attestme::resolvers::recipient_resolver::IRecipientResolverSafeDispatcher;
+use attestme::resolvers::recipient_resolver::IRecipientResolverSafeDispatcherTrait;
+use attestme::resolvers::recipient_resolver::IRecipientResolverDispatcher;
+use attestme::resolvers::recipient_resolver::IRecipientResolverDispatcherTrait;
 
 use attestme::SAS::ISASSafeDispatcher;
 use attestme::SAS::ISASSafeDispatcherTrait;
@@ -33,16 +36,17 @@ fn deploy_contract_sas(name: ByteArray, schema_registry: ContractAddress) -> Con
     contract_address
 }
 
-fn deploy_contract_schema_resolver(name: ByteArray, sas: ContractAddress) -> ContractAddress {
+fn deploy_contract_recipient_resolver(name: ByteArray, sas: ContractAddress, target_recipient: ContractAddress) -> ContractAddress {
     let contract = declare(name).unwrap();
     let mut constructor_calldata: Array<felt252> = ArrayTrait::new();
     constructor_calldata.append(sas.into());
+    constructor_calldata.append(target_recipient.into());
     let (contract_address, _) = contract.deploy(@constructor_calldata).unwrap();
     contract_address
 }
 
 #[test]
-fn test_schema_resolver() {
+fn test_recipient_resolver() {
     let contract_address_schema_registry = deploy_contract_schema_registry("SchemaRegistry");
 
     let dispatcher_schema_registry = ISchemaRegistryDispatcher {
@@ -52,9 +56,11 @@ fn test_schema_resolver() {
 
     let dispatcher_sas = ISASDispatcher { contract_address: contract_address_sas };
 
-    let contract_address_schema_resolver = deploy_contract_sas("SchemaResolver", contract_address_sas);
+    let _recipient: ContractAddress = contract_address_const::<2345>();
 
-    let _dispatcher_schema_resolver = ISchemaResolverDispatcher { contract_address: contract_address_schema_resolver };
+    let contract_address_recipient_resolver = deploy_contract_recipient_resolver("RecipientResolver", contract_address_sas, _recipient);
+
+    let dispatcher_recipient_resolver = IRecipientResolverDispatcher { contract_address: contract_address_recipient_resolver };
 
     let (_schemaRecord, _schema) = dispatcher_schema_registry.get_schema(0_u256);
     assert(_schemaRecord.uid == 0_u256, 'Invalid schema UID');
@@ -62,7 +68,7 @@ fn test_schema_resolver() {
     assert(_schemaRecord.revocable == false, 'Invalid revocable');
 
     let schema: ByteArray = "felt252 name, u256 age, felt252 address";
-    let resolver: ContractAddress = contract_address_schema_resolver;
+    let resolver: ContractAddress = contract_address_recipient_resolver;
     let revocable: bool = true;
 
     let _uid: u256 = dispatcher_schema_registry.register(schema, resolver, revocable);
@@ -73,7 +79,7 @@ fn test_schema_resolver() {
     assert(_schemaRecord.revocable == revocable, 'Invalid revocable');
 
     let _attestationRequestData: AttestationRequestData = AttestationRequestData {
-        recipient: contract_address_const::<2>(),
+        recipient: _recipient,
         expirationTime: 1719207030,
         revocable: true,
         refUID: 0,
@@ -84,15 +90,15 @@ fn test_schema_resolver() {
         schema: _uid, data: _attestationRequestData
     };
     let attestUID: u256 = dispatcher_sas.attest(_attestationRequest);
-    println!("attestUID 1: {}", attestUID);
+    // println!("attestUID 1: {}", attestUID);
 
-    let noOfAttestation: u256 = dispatcher_sas.getNoOfAttestation(_uid);
-    println!("noOfAttestation: {}", noOfAttestation);
+    let _noOfAttestation: u256 = dispatcher_sas.getNoOfAttestation(_uid);
+    // println!("noOfAttestation: {}", noOfAttestation);
 
     start_cheat_caller_address(contract_address_sas, contract_address_const::<3>());
 
     let _attestationRequestData: AttestationRequestData = AttestationRequestData {
-        recipient: contract_address_const::<4>(),
+        recipient: _recipient,
         expirationTime: 1719207030,
         revocable: true,
         refUID: 0,
@@ -103,20 +109,29 @@ fn test_schema_resolver() {
         schema: _uid, data: _attestationRequestData
     };
     let attestUID2: u256 = dispatcher_sas.attest(_attestationRequest);
-    println!("attestUID 2: {}", attestUID2);
+    // println!("attestUID 2: {}", attestUID2);
 
     stop_cheat_caller_address(contract_address_sas);
 
-    let noOfAttestation: u256 = dispatcher_sas.getNoOfAttestation(_uid);
-    println!("noOfAttestation: {}", noOfAttestation);
+    let _noOfAttestation: u256 = dispatcher_sas.getNoOfAttestation(_uid);
+    // println!("noOfAttestation: {}", noOfAttestation);
     let _attestation: Attestation = dispatcher_sas.getAttestation(attestUID);
-    println!("attestUID 1: {}", _attestation.uid);
+    // println!("attestUID 1: {}", _attestation.uid);
 
     let _attestation: Attestation = dispatcher_sas.getAttestation(attestUID2);
-    println!("attestUID 2: {}", _attestation.uid);
+    // println!("attestUID 2: {}", _attestation.uid);
 
     let _allAttestation: Array<Attestation> = dispatcher_sas.getAllAttestations();
-    println!("attestUID 1: {}", *_allAttestation.at(0).uid);
-    println!("attestUID 2: {}", *_allAttestation.at(1).uid);
+    // println!("attestUID 1: {}", *_allAttestation.at(0).uid);
+    // println!("attestUID 2: {}", *_allAttestation.at(1).uid);
+
+
+    start_cheat_caller_address(contract_address_recipient_resolver, contract_address_sas);
+
+    let isTrue: bool = dispatcher_recipient_resolver.attest(_attestation, 0);
+    // println!("isTrue: {}", isTrue);
+    assert!(isTrue == true);
+
+    stop_cheat_caller_address(contract_address_sas);
 
 }

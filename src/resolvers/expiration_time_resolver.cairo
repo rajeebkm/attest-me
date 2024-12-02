@@ -5,37 +5,33 @@ use core::panic_with_felt252;
 
 
 #[starknet::interface]
-pub trait IRecipientResolver<TContractState> {
-    fn isPayable(self: @TContractState) -> bool;
+pub trait IExpirationTimeResolver<TContractState> {
     fn attest(ref self: TContractState, attestation: Attestation, value: u256) -> bool;
     fn revoke(ref self: TContractState, attestation: Attestation, value: u256) -> bool;
 }
 
 #[starknet::contract]
-mod RecipientResolver {
+mod ExpirationTimeResolver {
     use core::result::ResultTrait;
     use core::array::ArrayTrait;
     use super::{ContractAddress, get_caller_address, contract_address_const, Errors, Attestation, panic_with_felt252};
     #[storage]
     struct Storage {
         sas: ContractAddress,
-        target_recipient: ContractAddress, // The SAS contract address
+        validAfter: u64, // The target value
 
     }
    
     /// @dev Creates a new Resolver instance.
     /// @param registry The address global SAS contract.
     #[constructor]
-    fn constructor(ref self: ContractState, _sas: ContractAddress, _target_recipient: ContractAddress) {
+    fn constructor(ref self: ContractState, _sas: ContractAddress, _validAfter: u64) {
         if (_sas == contract_address_const::<0>()) {
             panic_with_felt252(Errors::InvalidSAS);
         }
-        if (_target_recipient == contract_address_const::<0>()) {
-            panic_with_felt252('InvalidRecipient');
-        }
 
         self.sas.write(_sas);
-        self.target_recipient.write(_target_recipient);
+        self.validAfter.write(_validAfter);
     }
 
     /// @notice Emitted when a new schema has been registered
@@ -48,11 +44,8 @@ mod RecipientResolver {
     enum Event {}
 
     #[abi(embed_v0)]
-    impl RecipientResolverImpl of super::IRecipientResolver<ContractState> {
-        fn isPayable(self: @ContractState) -> bool {
-            return true;
-        }
-        
+    impl ExpirationTimeResolverImpl of super::IExpirationTimeResolver<ContractState> {
+      
         fn attest(ref self: ContractState, attestation: Attestation, value: u256) -> bool {
             assert(get_caller_address() == self.sas.read(), Errors::InvalidSAS);
             return self.onAttest(attestation, 0);
@@ -69,7 +62,7 @@ mod RecipientResolver {
     impl InternalFunctions of InternalFunctionsTrait {
 
         fn onAttest(ref self: ContractState, attestation: Attestation, value: u256) -> bool {
-            return attestation.recipient == self.target_recipient.read();
+            return attestation.expirationTime >= self.validAfter.read();
         }
         fn onRevoke(ref self: ContractState, attestation: Attestation, value: u256) -> bool {
             return true;
