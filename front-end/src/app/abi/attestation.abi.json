@@ -1,435 +1,446 @@
 [
   {
-    "type": "impl",
-    "name": "SASImpl",
-    "interface_name": "attestme::SAS::ISAS"
+      "type": "impl",
+      "name": "SASImpl",
+      "interface_name": "attestme::SAS::ISAS"
   },
   {
-    "type": "struct",
-    "name": "core::integer::u256",
-    "members": [
-      {
-        "name": "low",
-        "type": "core::integer::u128"
-      },
-      {
-        "name": "high",
-        "type": "core::integer::u128"
-      }
-    ]
+      "type": "struct",
+      "name": "core::integer::u256",
+      "members": [
+          {
+              "name": "low",
+              "type": "core::integer::u128"
+          },
+          {
+              "name": "high",
+              "type": "core::integer::u128"
+          }
+      ]
   },
   {
-    "type": "enum",
-    "name": "core::bool",
-    "variants": [
-      {
-        "name": "False",
-        "type": "()"
-      },
-      {
-        "name": "True",
-        "type": "()"
-      }
-    ]
+      "type": "enum",
+      "name": "core::bool",
+      "variants": [
+          {
+              "name": "False",
+              "type": "()"
+          },
+          {
+              "name": "True",
+              "type": "()"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "core::byte_array::ByteArray",
-    "members": [
-      {
-        "name": "data",
-        "type": "core::array::Array::<core::bytes_31::bytes31>"
-      },
-      {
-        "name": "pending_word",
-        "type": "core::felt252"
-      },
-      {
-        "name": "pending_word_len",
-        "type": "core::integer::u32"
-      }
-    ]
+      "type": "struct",
+      "name": "core::byte_array::ByteArray",
+      "members": [
+          {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+          },
+          {
+              "name": "pending_word",
+              "type": "core::felt252"
+          },
+          {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "attestme::SAS::AttestationRequestData",
-    "members": [
-      {
-        "name": "recipient",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "expirationTime",
-        "type": "core::integer::u64"
-      },
-      {
-        "name": "revocable",
-        "type": "core::bool"
-      },
-      {
-        "name": "refUID",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "data",
-        "type": "core::byte_array::ByteArray"
-      },
-      {
-        "name": "value",
-        "type": "core::integer::u256"
-      }
-    ]
+      "type": "struct",
+      "name": "attestme::SAS::AttestationRequestData",
+      "members": [
+          {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+              "name": "expirationTime",
+              "type": "core::integer::u64"
+          },
+          {
+              "name": "revocable",
+              "type": "core::bool"
+          },
+          {
+              "name": "refUID",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "data",
+              "type": "core::byte_array::ByteArray"
+          },
+          {
+              "name": "value",
+              "type": "core::integer::u256"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "attestme::SAS::AttestationRequest",
-    "members": [
-      {
-        "name": "schema",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "data",
-        "type": "attestme::SAS::AttestationRequestData"
-      }
-    ]
+      "type": "struct",
+      "name": "attestme::SAS::AttestationRequest",
+      "members": [
+          {
+              "name": "schema",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "data",
+              "type": "attestme::SAS::AttestationRequestData"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "attestme::SAS::RevocationRequestData",
-    "members": [
-      {
-        "name": "uid",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "value",
-        "type": "core::integer::u256"
-      }
-    ]
+      "type": "struct",
+      "name": "attestme::SAS::RevocationRequestData",
+      "members": [
+          {
+              "name": "uid",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "value",
+              "type": "core::integer::u256"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "attestme::SAS::RevocationRequest",
-    "members": [
-      {
-        "name": "schema",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "data",
-        "type": "attestme::SAS::RevocationRequestData"
-      }
-    ]
+      "type": "struct",
+      "name": "attestme::SAS::RevocationRequest",
+      "members": [
+          {
+              "name": "schema",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "data",
+              "type": "attestme::SAS::RevocationRequestData"
+          }
+      ]
   },
   {
-    "type": "struct",
-    "name": "attestme::SAS::Attestation",
-    "members": [
-      {
-        "name": "uid",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "schema",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "time",
-        "type": "core::integer::u64"
-      },
-      {
-        "name": "expirationTime",
-        "type": "core::integer::u64"
-      },
-      {
-        "name": "revocationTime",
-        "type": "core::integer::u64"
-      },
-      {
-        "name": "refUID",
-        "type": "core::integer::u256"
-      },
-      {
-        "name": "recipient",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "attester",
-        "type": "core::starknet::contract_address::ContractAddress"
-      },
-      {
-        "name": "data",
-        "type": "core::byte_array::ByteArray"
-      },
-      {
-        "name": "revocable",
-        "type": "core::bool"
-      },
-      {
-        "name": "isRevoked",
-        "type": "core::bool"
-      }
-    ]
+      "type": "struct",
+      "name": "attestme::SAS::Attestation",
+      "members": [
+          {
+              "name": "uid",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "schema",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "time",
+              "type": "core::integer::u64"
+          },
+          {
+              "name": "expirationTime",
+              "type": "core::integer::u64"
+          },
+          {
+              "name": "revocationTime",
+              "type": "core::integer::u64"
+          },
+          {
+              "name": "refUID",
+              "type": "core::integer::u256"
+          },
+          {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+              "name": "attester",
+              "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+              "name": "data",
+              "type": "core::byte_array::ByteArray"
+          },
+          {
+              "name": "revocable",
+              "type": "core::bool"
+          },
+          {
+              "name": "isRevoked",
+              "type": "core::bool"
+          }
+      ]
   },
   {
-    "type": "interface",
-    "name": "attestme::SAS::ISAS",
-    "items": [
-      {
-        "type": "function",
-        "name": "getSchemaRegistry",
-        "inputs": [],
-        "outputs": [
+      "type": "interface",
+      "name": "attestme::SAS::ISAS",
+      "items": [
           {
-            "type": "core::starknet::contract_address::ContractAddress"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "type": "function",
-        "name": "attest",
-        "inputs": [
+              "type": "function",
+              "name": "attest",
+              "inputs": [
+                  {
+                      "name": "request",
+                      "type": "attestme::SAS::AttestationRequest"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "state_mutability": "external"
+          },
           {
-            "name": "request",
-            "type": "attestme::SAS::AttestationRequest"
-          }
-        ],
-        "outputs": [
+              "type": "function",
+              "name": "revoke",
+              "inputs": [
+                  {
+                      "name": "request",
+                      "type": "attestme::SAS::RevocationRequest"
+                  }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+          },
           {
-            "type": "core::integer::u256"
-          }
-        ],
-        "state_mutability": "external"
-      },
-      {
-        "type": "function",
-        "name": "revoke",
-        "inputs": [
+              "type": "function",
+              "name": "getSchemaRegistry",
+              "inputs": [],
+              "outputs": [
+                  {
+                      "type": "core::starknet::contract_address::ContractAddress"
+                  }
+              ],
+              "state_mutability": "view"
+          },
           {
-            "name": "request",
-            "type": "attestme::SAS::RevocationRequest"
-          }
-        ],
-        "outputs": [],
-        "state_mutability": "external"
-      },
-      {
-        "type": "function",
-        "name": "timestamp",
-        "inputs": [
+              "type": "function",
+              "name": "timestamp",
+              "inputs": [
+                  {
+                      "name": "data",
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "core::integer::u64"
+                  }
+              ],
+              "state_mutability": "external"
+          },
           {
-            "name": "data",
-            "type": "core::integer::u256"
-          }
-        ],
-        "outputs": [
+              "type": "function",
+              "name": "getAttestation",
+              "inputs": [
+                  {
+                      "name": "uid",
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "attestme::SAS::Attestation"
+                  }
+              ],
+              "state_mutability": "view"
+          },
           {
-            "type": "core::integer::u64"
-          }
-        ],
-        "state_mutability": "external"
-      },
-      {
-        "type": "function",
-        "name": "multiTimestamp",
-        "inputs": [
+              "type": "function",
+              "name": "getAllAttestations",
+              "inputs": [],
+              "outputs": [
+                  {
+                      "type": "core::array::Array::<attestme::SAS::Attestation>"
+                  }
+              ],
+              "state_mutability": "view"
+          },
           {
-            "name": "data",
-            "type": "core::array::Array::<core::integer::u256>"
-          }
-        ],
-        "outputs": [
+              "type": "function",
+              "name": "isAttestationValid",
+              "inputs": [
+                  {
+                      "name": "uid",
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "core::bool"
+                  }
+              ],
+              "state_mutability": "view"
+          },
           {
-            "type": "core::integer::u64"
-          }
-        ],
-        "state_mutability": "external"
-      },
-      {
-        "type": "function",
-        "name": "getAttestation",
-        "inputs": [
+              "type": "function",
+              "name": "getTimestamp",
+              "inputs": [
+                  {
+                      "name": "data",
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "core::integer::u64"
+                  }
+              ],
+              "state_mutability": "view"
+          },
           {
-            "name": "uid",
-            "type": "core::integer::u256"
+              "type": "function",
+              "name": "getNoOfAttestation",
+              "inputs": [
+                  {
+                      "name": "schemaUID",
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "outputs": [
+                  {
+                      "type": "core::integer::u256"
+                  }
+              ],
+              "state_mutability": "view"
           }
-        ],
-        "outputs": [
-          {
-            "type": "attestme::SAS::Attestation"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "type": "function",
-        "name": "getAllAttestations",
-        "inputs": [],
-        "outputs": [
-          {
-            "type": "core::array::Array::<attestme::SAS::Attestation>"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "type": "function",
-        "name": "isAttestationValid",
-        "inputs": [
-          {
-            "name": "uid",
-            "type": "core::integer::u256"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::bool"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "type": "function",
-        "name": "getTimestamp",
-        "inputs": [
-          {
-            "name": "data",
-            "type": "core::integer::u256"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::integer::u64"
-          }
-        ],
-        "state_mutability": "view"
-      },
-      {
-        "type": "function",
-        "name": "getNoOfAttestation",
-        "inputs": [
-          {
-            "name": "schemaUID",
-            "type": "core::integer::u256"
-          }
-        ],
-        "outputs": [
-          {
-            "type": "core::integer::u256"
-          }
-        ],
-        "state_mutability": "view"
-      }
-    ]
+      ]
   },
   {
-    "type": "constructor",
-    "name": "constructor",
-    "inputs": [
-      {
-        "name": "registry",
-        "type": "core::starknet::contract_address::ContractAddress"
-      }
-    ]
+      "type": "constructor",
+      "name": "constructor",
+      "inputs": [
+          {
+              "name": "registry",
+              "type": "core::starknet::contract_address::ContractAddress"
+          }
+      ]
   },
   {
-    "type": "event",
-    "name": "attestme::SAS::SAS::Attested",
-    "kind": "struct",
-    "members": [
-      {
-        "name": "recipient",
-        "type": "core::starknet::contract_address::ContractAddress",
-        "kind": "data"
-      },
-      {
-        "name": "attester",
-        "type": "core::starknet::contract_address::ContractAddress",
-        "kind": "data"
-      },
-      {
-        "name": "uid",
-        "type": "core::integer::u256",
-        "kind": "data"
-      },
-      {
-        "name": "schemaUID",
-        "type": "core::integer::u256",
-        "kind": "data"
-      },
-      {
-        "name": "timestamp",
-        "type": "core::integer::u64",
-        "kind": "data"
-      }
-    ]
+      "type": "event",
+      "name": "attestme::SAS::SAS::Attested",
+      "kind": "struct",
+      "members": [
+          {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+          },
+          {
+              "name": "attester",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+          },
+          {
+              "name": "uid",
+              "type": "core::integer::u256",
+              "kind": "data"
+          },
+          {
+              "name": "schemaUID",
+              "type": "core::integer::u256",
+              "kind": "data"
+          },
+          {
+              "name": "timestamp",
+              "type": "core::integer::u64",
+              "kind": "data"
+          }
+      ]
   },
   {
-    "type": "event",
-    "name": "attestme::SAS::SAS::Revoked",
-    "kind": "struct",
-    "members": [
-      {
-        "name": "recipient",
-        "type": "core::starknet::contract_address::ContractAddress",
-        "kind": "data"
-      },
-      {
-        "name": "revoker",
-        "type": "core::starknet::contract_address::ContractAddress",
-        "kind": "data"
-      },
-      {
-        "name": "uid",
-        "type": "core::integer::u256",
-        "kind": "data"
-      },
-      {
-        "name": "schemaUID",
-        "type": "core::integer::u256",
-        "kind": "data"
-      }
-    ]
+      "type": "event",
+      "name": "attestme::SAS::SAS::Revoked",
+      "kind": "struct",
+      "members": [
+          {
+              "name": "recipient",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+          },
+          {
+              "name": "revoker",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+          },
+          {
+              "name": "uid",
+              "type": "core::integer::u256",
+              "kind": "data"
+          },
+          {
+              "name": "schemaUID",
+              "type": "core::integer::u256",
+              "kind": "data"
+          }
+      ]
   },
   {
-    "type": "event",
-    "name": "attestme::SAS::SAS::Timestamped",
-    "kind": "struct",
-    "members": [
-      {
-        "name": "timestamp",
-        "type": "core::integer::u64",
-        "kind": "data"
-      },
-      {
-        "name": "data",
-        "type": "core::integer::u256",
-        "kind": "data"
-      }
-    ]
+      "type": "event",
+      "name": "attestme::SAS::SAS::Timestamped",
+      "kind": "struct",
+      "members": [
+          {
+              "name": "timestamp",
+              "type": "core::integer::u64",
+              "kind": "data"
+          },
+          {
+              "name": "data",
+              "type": "core::integer::u256",
+              "kind": "data"
+          }
+      ]
   },
   {
-    "type": "event",
-    "name": "attestme::SAS::SAS::Event",
-    "kind": "enum",
-    "variants": [
-      {
-        "name": "Attested",
-        "type": "attestme::SAS::SAS::Attested",
-        "kind": "nested"
-      },
-      {
-        "name": "Revoked",
-        "type": "attestme::SAS::SAS::Revoked",
-        "kind": "nested"
-      },
-      {
-        "name": "Timestamped",
-        "type": "attestme::SAS::SAS::Timestamped",
-        "kind": "nested"
-      }
-    ]
+      "type": "event",
+      "name": "attestme::SAS::SAS::RevokedOffchain",
+      "kind": "struct",
+      "members": [
+          {
+              "name": "revoker",
+              "type": "core::starknet::contract_address::ContractAddress",
+              "kind": "data"
+          },
+          {
+              "name": "timestamp",
+              "type": "core::integer::u64",
+              "kind": "data"
+          },
+          {
+              "name": "data",
+              "type": "core::integer::u256",
+              "kind": "data"
+          }
+      ]
+  },
+  {
+      "type": "event",
+      "name": "attestme::SAS::SAS::Event",
+      "kind": "enum",
+      "variants": [
+          {
+              "name": "Attested",
+              "type": "attestme::SAS::SAS::Attested",
+              "kind": "nested"
+          },
+          {
+              "name": "Revoked",
+              "type": "attestme::SAS::SAS::Revoked",
+              "kind": "nested"
+          },
+          {
+              "name": "Timestamped",
+              "type": "attestme::SAS::SAS::Timestamped",
+              "kind": "nested"
+          },
+          {
+              "name": "RevokedOffchain",
+              "type": "attestme::SAS::SAS::RevokedOffchain",
+              "kind": "nested"
+          }
+      ]
   }
 ]

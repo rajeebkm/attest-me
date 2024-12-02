@@ -702,7 +702,7 @@ mod SAS {
                 }
 
                 let mut _attestation: Attestation = Attestation {
-                    uid: EMPTY_UID,
+                    uid: attestation.uid,
                     schema: attestation.schema,
                     refUID: attestation.refUID,
                     time: get_block_timestamp(),
@@ -715,8 +715,7 @@ mod SAS {
                     isRevoked: true
                 };
 
-
-                self._db.write(data.uid, _attestation);
+                self._db.write(attestation.uid, _attestation);
         
                 self
                     .emit(

@@ -1,0 +1,169 @@
+[
+    {
+        "type": "impl",
+        "name": "RecipientResolverImpl",
+        "interface_name": "attestme::resolvers::recipient_resolver::IRecipientResolver"
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
+            },
+            {
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "core::byte_array::ByteArray",
+        "members": [
+            {
+                "name": "data",
+                "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+                "name": "pending_word",
+                "type": "core::felt252"
+            },
+            {
+                "name": "pending_word_len",
+                "type": "core::integer::u32"
+            }
+        ]
+    },
+    {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+            {
+                "name": "False",
+                "type": "()"
+            },
+            {
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "attestme::SAS::Attestation",
+        "members": [
+            {
+                "name": "uid",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "schema",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "time",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "expirationTime",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "revocationTime",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "refUID",
+                "type": "core::integer::u256"
+            },
+            {
+                "name": "recipient",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "attester",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "data",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "revocable",
+                "type": "core::bool"
+            },
+            {
+                "name": "isRevoked",
+                "type": "core::bool"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "attestme::resolvers::recipient_resolver::IRecipientResolver",
+        "items": [
+            {
+                "type": "function",
+                "name": "attest",
+                "inputs": [
+                    {
+                        "name": "attestation",
+                        "type": "attestme::SAS::Attestation"
+                    },
+                    {
+                        "name": "value",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "revoke",
+                "inputs": [
+                    {
+                        "name": "attestation",
+                        "type": "attestme::SAS::Attestation"
+                    },
+                    {
+                        "name": "value",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "_sas",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "_target_recipient",
+                "type": "core::starknet::contract_address::ContractAddress"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "attestme::resolvers::recipient_resolver::RecipientResolver::Event",
+        "kind": "enum",
+        "variants": []
+    }
+]
