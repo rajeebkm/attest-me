@@ -1,0 +1,188 @@
+[
+  {
+    "type": "impl",
+    "name": "SchemaRegistryImpl",
+    "interface_name": "attestme::schema_registry::ISchemaRegistry"
+  },
+  {
+    "type": "struct",
+    "name": "core::byte_array::ByteArray",
+    "members": [
+      {
+        "name": "data",
+        "type": "core::array::Array::<core::bytes_31::bytes31>"
+      },
+      {
+        "name": "pending_word",
+        "type": "core::felt252"
+      },
+      {
+        "name": "pending_word_len",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "attestme::schema_registry::SchemaRecord",
+    "members": [
+      {
+        "name": "uid",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "resolver",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "revocable",
+        "type": "core::bool"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "attestme::schema_registry::ISchemaRegistry",
+    "items": [
+      {
+        "type": "function",
+        "name": "register",
+        "inputs": [
+          {
+            "name": "schema",
+            "type": "core::byte_array::ByteArray"
+          },
+          {
+            "name": "resolver",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "revocable",
+            "type": "core::bool"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_schema",
+        "inputs": [
+          {
+            "name": "uid",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(attestme::schema_registry::SchemaRecord, core::byte_array::ByteArray)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_all_uids",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::array::Array::<core::integer::u256>"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_all_schemas_records",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::array::Array::<attestme::schema_registry::SchemaRecord>"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": []
+  },
+  {
+    "type": "event",
+    "name": "attestme::schema_registry::SchemaRegistry::Registered",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "timestamp",
+        "type": "core::integer::u64",
+        "kind": "data"
+      },
+      {
+        "name": "uid",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "registerer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "schemaRecord",
+        "type": "attestme::schema_registry::SchemaRecord",
+        "kind": "data"
+      },
+      {
+        "name": "schema",
+        "type": "core::byte_array::ByteArray",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "attestme::schema_registry::SchemaRegistry::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "Registered",
+        "type": "attestme::schema_registry::SchemaRegistry::Registered",
+        "kind": "nested"
+      }
+    ]
+  }
+]
