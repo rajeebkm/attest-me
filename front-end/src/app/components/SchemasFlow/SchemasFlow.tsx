@@ -223,7 +223,7 @@ function SchemasFlow() {
                             />
                         </div>
                         <div className="flex items-center mb-6">
-                            <p className="text-2xl font-bold mr-4 w-1/4 text-blue-600 dark:text-blue-900">Is Recoverable</p>
+                            <p className="text-2xl font-bold mr-4 w-1/4 text-blue-600 dark:text-blue-900">Is Revocable</p>
                             <div className="flex">
                                 <button
                                     type="button"
@@ -260,7 +260,7 @@ function SchemasFlow() {
                             <button
                                 type="button"
                                 disabled={loading}
-                                className="bg-blue-600 py-3 px-6 rounded  text-white hover:bg-blue-700 disabled:bg-gray-100 disabled:cursor-not-allowed shadow-2xl bg-opacity-80 dark:bg-opacity-80"
+                                className="bg-blue-600 py-3 px-6 rounded  text-white hover:bg-blue-700 disabled:dark:text-gray-600 disabled:bg-gray-100 disabled:cursor-not-allowed shadow-2xl bg-opacity-80 dark:bg-opacity-80"
                                 onClick={() => router.push("/create-schemas")}
                             >
                                 View Schemas

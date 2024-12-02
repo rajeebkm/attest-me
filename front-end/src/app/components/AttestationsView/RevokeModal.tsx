@@ -1,6 +1,5 @@
 "use client"
 import React from 'react';
-
 interface RevokeModalProps {
   isOpen: boolean;
   onClose: () => void;
