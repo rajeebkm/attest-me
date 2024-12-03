@@ -85,7 +85,7 @@ export default function Home() {
                   </span>
                 </a>
               </Link>
-              <Link href="/schemas-table" legacyBehavior>
+              <Link href="/create-schemas" legacyBehavior>
                 <a className="flex justify-center items-center gap-2 px-4 py-2 text-sm bg-white text-black rounded-md font-medium border-2 dark:border-gray-200 shadow-md hover:bg-blue-800 hover:shadow-lg active:bg-white active:shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 transition duration-700 ease-in-out">
                   <span>Start Exploring</span>
                   <span><UpRightArrowIcon /></span>
