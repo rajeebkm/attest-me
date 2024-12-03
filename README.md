@@ -1,7 +1,9 @@
 
 # AttestMe
 
-**AttestMe** is an attestation service built on StarkNet, offering a variety of attestation functionalities including **CreateSchema**, **MakeAttestation**, **RevokeAttestation**, and advanced resolvers for enhanced flexibility. This guide provides detailed steps to set up and run the project locally.
+**AttestMe** is an attestation service built on StarkNet, offering a variety of attestation functionalities including **CreateSchema**, **MakeAttestation**, **RevokeAttestation**, and advanced resolvers for enhanced flexibility.
+
+<img width="1432" alt="homepage" src="https://github.com/user-attachments/assets/498d629e-c9d9-4867-9001-633a8311c85b">
 
 ---
 
